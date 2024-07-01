@@ -1,0 +1,1065 @@
+\documentclass[12pt, english]{article}
+% \IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+%%%%%%%% CREATE DOCUMENT STRUCTURE %%%%%%%%
+%% Language and font encodings
+\usepackage[english, french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cite}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage[table,xcdraw]{xcolor}
+% \PrerenderUnicode-"
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=2cm,right=2cm,marginparwidth=1.80cm]{geometry}
+
+%% Useful packages
+\usepackage{url}
+\usepackage{amsmath,amssymb,amsfonts}
+% \usepackage{algorithmic,algorithm}
+\usepackage{algorithm2e}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\graphicspath{{images/}}
+\usepackage{textcomp}
+% \usepackage{xcolor}
+\usepackage{comment}
+% \usepackage{hyperref}
+\usepackage[acronym]{glossaries}
+% \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+%     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% clickable links in the PDF
+\usepackage[hidelinks]{hyperref}
+% \hypersetup{
+%     colorlinks=false,
+%     linkcolor=blue,
+%     urlcolor=cyan,
+%     pdfpagemode=FullScreen,
+%     }
+% glossary
+\usepackage{glossaries}
+\makeglossaries{}
+\input{glossary.tex}
+
+% \title{Visible and infrared images fusion\\}
+
+% \author{\IEEEauthorblockN{1\textsuperscript{st} Aurélien Godet}
+% \IEEEauthorblockA{\textit{DHET - SICOM} \\
+% Aurelien.Godet@grenoble-inp.org}}
+
+% \maketitle
+% \begin{abstract}
+% Image Fusion : Visible and Infrared
+% \end{abstract}
+
+%%%%%%%% DOCUMENT %%%%%%%%
+\begin{document}
+
+\selectlanguage{english}
+    \newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 							% horizontal line and its thickness
+    %%% Length settings
+    \newlength{\imagesize} \setlength{\imagesize}{8cm}
+    \newlength{\bigimagesize} \setlength{\bigimagesize}{12cm}
+    \newlength{\smallimagesize} \setlength{\smallimagesize}{6cm}
+    \newlength{\halfimagesize} \setlength{\halfimagesize}{4cm}
+    \setlength\intextsep{4pt}
+    
+    %%% Title Page
+    \begin{titlepage}
+    
+    %Title
+    \title{\HRule{} \huge \bfseries  \\ Infrared and visible images fusion for user perceptual enhancement \\ \HRule}
+    % Author
+    \author{Aurélien Godet \textit{CSI} \\ Aurelien.Godet@grenoble-inp.fr}
+
+    \maketitle
+    \center{}
+
+    % University
+    \textsc{\LARGE GIPSA-Lab - DeepRed}\\[1cm]
+    % Document 
+    \textsc{\large First year of thesis}\\[0.5cm] 
+    
+    \large
+    
+    \emph{Supervisors:}\\
+    Gabriel Jobert and Mauro Dalla Mura
+    \\[1.5cm]
+    
+    {\large October 01, 2023 - September 30, 2026
+    }\\[5cm]
+    \includegraphics[width=4cm]{images/logo/Deepred.jpg}
+    \includegraphics[width=4cm]{images/logo/gipsa.png}               
+    \includegraphics[width=4cm]{images/logo/Lynred.png}
+    \includegraphics[width=4cm]{images/logo/EEATS.png}
+    \vfill 
+    \end{titlepage}
+    
+    % Abstract % --------------------------------------------------- %
+    \begin{abstract}
+        In the last recent years the use of the thermal infrared images came to be more proheminent in a wide scale of application. This thesis will
+        put a special focus on driving data, but the goal of the subject is to propose several fusion pipeline each aiming to reach the best performances
+        on a given application, such as enhance pedestrians perception for the drivers in difficult lighting conditions or reduce the glare of an incoming car
+        during the nighttime. Those are common examples in \acrfull*[]{adas} field, but we can imagine others like enhancing night vision for mountainbikers
+        or hunters or even propose a thermal view superposition usable by anyone with a smartphone.\\
+        The final goal of this images fusion is yet to debat because in heavily relying on the purpose of the fusion. If we want to get the most natural
+        image for human perception, the fusion process won't be the same as if we try to maximize pedestrians detection for drivers.
+        \citation{Neovision}
+    \end{abstract}
+    % -------------------------------------------------------------- %
+
+    % \begin{IEEEkeywords}
+    % \textbf{Computer vision, Signal processing, Deep-learning, filtering techniques, Depth from stereo}
+    % \end{IEEEkeywords}
+    
+    % \newpage
+    \vspace{1cm}
+    \section*{Acknowledgment}
+    Thanks to Mauro Dalla Mura and Gabriel Jobert for guiding and helping me all along this first part of thesis. 
+    Thank to the DeepRed chair to provide the funding and material necessary to work in good conditions and especially to Jocelyn Chanussot 
+    for his technical assistance. And a last thank to Alan Chauvin and Olivier Aycard for accepting to be part of my CSI during this thesis.
+
+    \printglossaries{}
+    \newpage
+    \tableofcontents
+    
+    \newpage
+
+    \section{Introduction}
+        \subsection{Context and Objective of the Thesis}
+            The chair DeepRed has been founded to promote a partnership between Lynred and Grenoble's Engineer Schools. Different projects around 
+            the possible application of infrared are supported. Object recognition using visible frequencies mixed with thermal infrared, playful 
+            experiment to use the caracteristics of the infrared to create a new kind of Escape Game, creation of augmented reality infrared glasses.
+            My project is part of this research and development initiative around the infrared. \href{https://lynred.com/fr}{Lynred} is a well experienced infrared sensor manufacturer,
+            whose company is implented near Grenoble at Veurey-Voroize. They produce Infrared sensors which sensitivity range from near infrared to 
+            longwave infrared with technologies meant for spatial, military or civil applications alike. The enhanced vision using thermal infrared is used
+            for a while by the military or the firefigther forces. It's used also for the thermal diagnostic of buidings or cities sruveillance systems. 
+            [REF / PIC TO BE ADDED]
+            The goal for Lynred was to promote the infrared for a less initiate public and put it to use 
+            in various common everyday life's situation. It's where the modality fusion subject emerges. The first formulation was to create the most 'natural' 
+            looking image, but after some discussion with the Lynred application team, we came upon an agreement: layered some thermal information in a visible image 
+            with purpose to mimique the best we can the naturalness of a visible image can't lead to good result due to the very fundamental differences between those 
+            wavelengthes. The choice of fusion strategy will be done according the objective and the application.
+
+        \subsection{Work schedule}
+
+            As Lyndred has recorded with a partner a multimodal dataset containing several hours of driving under various lightning and weather conditions, 
+            my first approach of this fusion problematic was apply to the \acrlong*[]{adas} domain. This will be my data source for most of the code devlopement, but 
+            we want the code to be testable on other public dataset. The main problem being that infrared-visible good quality datasets are seldom and often not large
+            enough to be used as a training ressource for a \acrlong*[]{cnn}.\\
+            The final purpose of the thesis being to propose several image fusion methods depending on the aimed application, we decided to organize those
+            three years as follow:\\
+            At first a thourough study of the State-of-the-Art on the subject will be achieve and shall be pursue for the next years as this field of research 
+            is evolving constantly at a swift pace. Then I aim to get perfectly pixel-wise aligned datasets to formulate some fusion recipee proposals.\\
+            During the second year I will try to optimize the proposed fusion pipelines and organize a study over a bunch of students or researchers to 
+            try out the different proposed pipeline. Each fusion proposition will be associated with a different metric according the goal of the fusion. For 
+            instance, to try out the pedestrian detection capacity, I could propose a propose several fused images or a short video sequence with as guideline
+            "how many pedestrian do you see in this scene?". Another example is to mesure a reaction time in an emergency situation and to compare this 
+            reaction time between several fusion propositions. The second year will be also the main part of the mendatories 120h of formation as a late start of the Thesis
+            prevented me to begin them earlier.\\
+            The last year will be focused around the final redaction of the Thesis and maybe make the code easy-to-use for possible future works.
+
+        \subsection{Research environment}
+            The thesis is directed by Mauro DALLA-MURA, part of the sigmaphy team at the GIPSA-LAB, specialized in multimodal imaging and remote-sensing and 
+            co-directed by Gabriel JOBERT, application engineer for Lynred, specialist in optical and vision system. It's a multi-field thesis as we first need some 
+            knowledge in image processing and artificial intelligence as the main trend is to use \acrlong*{cnn} for features exctraction and image fusion, and in a second
+            time the cognitive-science methodologie could be coming handy to create the most accurate and well designed testing procedure we can. Most of the thesis researches
+            will be conduct in the \href{http://www.gipsa-lab.fr/}{GIPSA-LAB} in St-Martin-d'Hères, but occasionally an outdoor session will be organized to record new dataset images or to setup the testing experiment.
+    
+    \section*{Short bibliography overview}
+        As the image fusion, and the infrared-visible image fusion is a really thoroughtfully explored area for it's multiple possible applications. The number of proposed
+        methods has only increased faster those last year since the use of light \acrshort*[options]{cnn} for real-time or embedded application becomes possible. But this
+        problematic exist for quite a long time, the only difference with the present time is the fact that the infrared sensors and infrared cameras were reserved to a public
+        of specialists and most of the people had never seen a near infrared or a thermal image. Nowadays, some photographers use the near-infrared sensitivity of \acrfull*[options]{rgb} 
+        sensors to capture pictures with a surrealistic reddish color for vegetation. Some smartphones 
+
+    
+
+            
+            The main problem I tackled so far is to get perfectly aligned images with no parallax disparities as
+            the fused image is directly seen by the final user and not a machine or a \acrlong*{cnn}. The tiniest edge missalignment will be 
+            noticeable after the fusion.
+
+        
+        
+%         \href{http://www.gipsa-lab.fr/}{GIPSA-LAB} in Saint-Martin-d'Hères. It's an internship supported by the chaire DeepRed, association between Grenoble INP and \href{https://lynred.com/fr}{Lynred}  a major actor on the market of infrared systems.
+%         \href{https://lynred.com/fr}{Lynred} is a well-known thermal sensor developer and manufacturer with application in a lot of different fields going from the aerospace to the defense for both industrial and public uses.\\
+%         Thereafter the planning I followed during those month:
+        
+%          \begin{figure}[h]
+%             \centering
+%             \includegraphics[width=16cm]{images/Gantt.png}  
+%         \end{figure}
+        
+%         \newpage 
+%         \subsection{Problematic presentation}
+%         The problematic of data fusion in the field of computer vision is a trending subject nowadays due to its numerous industrial applications. It's a wide open subject with a lot of contribution and papers and it may be easy to get lost in such a rich environment. The main purpose of this study was to get the best fusion method between visible and \acrshort{ir} images for the human eye's appreciation.
+%         This subject has been widely covered through many different methods going from space-scale representation to Deep Neural Network. It stays nonetheless a challenging topic as assessing of the quality of the fusion is really subjective and application dependant.\\
+%         The main application of this work is the \acrlong{adas}. If the safety for drivers in the car is improving years after years, an increasing proportion of the road fatalities or injuries occurring in France are pedestrians or cyclists. The figures of the French Road Safety Observatory \cite{FRSO} presented in Table \ref{tab:casualties}.\\
+%         \begin{table}[h!]
+%             \renewcommand{\arraystretch}{1.5}
+%             \centering
+%             \begin{tabular}{ |c||p{2.5cm}|p{2.5cm}| } 
+%                 \hline
+%                             & Fatalities 2010   & Fatalities 2021\\ 
+%                 \hline
+%                 Car User    & 53\%              & 48\% \\     
+%                 \hline
+%                 Pedestrians & 12\%              & 14\% \\ 
+%                 \hline
+%                 Cyclist     & 4\%               & 8\% \\
+%                 \hline
+%             \end{tabular}
+%             \label{tab:casualties}
+%             \caption{French Road Safety Observatory 2021 figures}
+%         \end{table}
+
+%         To provide highlight and additional information and enhanced vision to the driver may prevent a part of some avoidable accidents. In particular during nighttime or with sharp variation of illumination (like a tunnel entrance, a tunnel output or even some blinding lights from a car arriving in the opposite direction).\\
+%         During this project we worked with a Database created by \href{https://lynred.com/fr}{Lynred} using two sets of infrared and visible cameras, one being the master set, the other one the slave set. That will come handy when coming to process the parallax before to fusion the images.\\
+%         In the field on image processing, the \acrfull{nn} are in most of the situation the best choice considering the performance and the quality of the result. I chose to try out a panel of algorithmic solutions before to select a suited \acrshort{nn} in order to understand as much as possible the hidden behavior of the \acrshort{nn}.\\
+%         My work will be split in two main parts: analyze the dataset and try some simple fusion methods to highlight the essential point of focus to get the best fusion and then try to answer those points as best as possible.
+        
+%     \newpage
+    
+%         \subsection{Dataset and Recording setup}
+%         \label{chap:setup}
+%             The Lynred's dataset has been recorded within multiple sessions of several hours counting about one million frames for each 4 cameras, in daylight or at nighttime, during summer and winter and every possible meteorological conditions. For our study we will use only a portion of it with two extracts of about 2 minutes each, one during the day the other during the night.
+%             The recording devices were a couple of pairs \acrshort{ir} - \acrshort{vis} cameras all set on the roof of a car on a aluminium structure as shown Figure \ref{fig:camera_spacing}.\\
+            
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/dataset/Setup1.png}  
+%                 \caption{Cameras setup}
+%                 \label{fig:camera_spacing}
+%             \end{figure}
+            
+%             The infrared cameras integrate a VGA sensor (640x480 pixels) with a lens allowing an horizontal field of view of 42\textdegree and an aperture of f /1.2.\\
+%             The \acrshort{vis} cameras integrate a Sony IMX273 sensor (1448x1086 pixels) cropped down to the SXGA format (1280x960)for a equivalent field of view of 45\textdegree and an aperture of f /1.4 \cite{Neovision}\\
+%             When a dataset is recorded using several cameras synchronized all together, a calibration of the setup is required to get exploitable images. To do so, the usual process is to use a checkerboard as it's easy to detect the corners and match them within the different images. It was a bit more difficult to design a checkerboard visible for both the classical RGB camera and the infrared camera as well. A checkerboard made of squares cut off from foam and aluminium glued on a wood plate has been designed on this purpose. For this dataset the checkerboard has been put at a distance of roughly 5m in front the cameras and 1m bellow.
+            
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/dataset/setup_schema.png}
+%                 \caption{Extrinsic calibration of the cameras}
+%                 \label{fig:}
+%             \end{figure}
+            
+%             There is a baseline of 214mm between the two set of cameras and a smaller baseline of 127mm between the \acrlong{ir} and \acrlong{vis} cameras within a set.
+%             \\
+%             As the recorded Dataset is sampled at 30 \acrfull{fps} over several hours with 4 channels (2 \acrlong{vis}, 2 \acrlong{ir}) the quantity of data is too important and not relevant enough to be processed fully. So I start with a small partition of the data, 2 minutes of Day recording and 2 minutes of Night recording with a total of 14400 images.\\
+            
+%             Following sections we will use this pair of images showing a scene in daylight with objects close and far to have the best appreciation of the fusion result. The example images are presented in Figure \ref{fig:example_image}.
+            
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/first_approach/vis_ex.png}
+%                 \includegraphics[width=\imagesize]{images/first_approach/inf_ex.png}
+%                 \caption[]{Image color and Infrared of a daylight scene\footnotemark}
+%                 \label{fig:example_image}
+%             \end{figure} 
+%         \footnotetext{The faces and license plates have been blurred after processing, in accord with the \acrfull{rgpd}}
+        
+%         \newpage  
+%         \subsection{First approach: What is image fusion?}
+%             \label{chap:definition}
+%             The infrared and RGB fusion takes as input two images : one visible with 3 primary colors channels (usually Red Blue and Green) the other with a lesser number of pixels and only containing one channel of heat measurement.
+%             As a first and naive approach we can take two resized images and proceed to simple fusion operations where each pixel pixel is summed with the pixel at the same position in the other image. Of course a direct weighted summation is not possible as the \acrshort{vis} present three layers against one for the \acrshort{ir} images. For the sake of simplicity we will use a representation for the visible image where one of the channel is representing the luminance of the image and fuse this channel with the infrared grayscale image. To do so we have to pass the RGB image in the LAB space - presented in Annex \ref{annexe:colorspace}. We will refer to this technique in the following parts of the document as "luminance fusion", see Figure \ref{fig:lum_fus_process}.\\
+    
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=10cm]{images/first_approach/schema.png}
+%                 \caption{Luminance fusion process}
+%                 \label{fig:lum_fus_process}
+%             \end{figure} 
+            
+%             When we take a closer look to the result of the fusion we can see the next problem we have to solve in order to have a good looking result of fusion : the parallax effect.
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=10cm]{images/first_approach/luminance_para.png}
+%                 \caption{Parallax effect}
+%                 \label{fig:parallax_effect}
+%             \end{figure} 
+            
+%         \newpage   
+%     \section{Parallax correction}
+    
+%         The first problem we encounter to fusion the infrared information with the visible image is to correlate each pixels from an image to another. It's a problem of stereo vision. The first thing to do is to align every images of the dataset in order to compute the disparities. After a brief study of the stereo vision principle I chose a method to compute the pixel-wise disparity within the stereo pairs.
+        
+%         \subsection{Stereo Vision}
+%             The principle of stereo vision is well known for a long time as it's exactly how human' sight works. Two input images slightly apart by a distance called "Baseline" allow the brain to evaluate the depth. Of course our brain is using much more information than just the signal from the eyes, like knowledge of object and prior about those (shape, size, color...) to estimate their position and distance in space. That's why we still have a certain appreciation of the depth even using just one eye. The geometrical explanation of the stereo vision is simple: the further is an object, the closer it will appear from one to another in the image, Figure \ref{fig:stereo}. \\
+%             \begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=\smallimagesize]{images/parallax_correction/stereo.jpg}
+%                 \includegraphics[width=\imagesize]{images/parallax_correction/stereo_cones.png}
+%                 \caption{Principle of stereo vision, Illustration from \cite{IDS}}
+%                 \label{fig:stereo}
+%             \end{figure}
+            
+%             The computer - or human brain - try to find related pixels in both images to estimate the distance between them. This distance is called "Disparity". Thus, using those both images we can draw a disparity map for each pixel, which will have the same size as the input image. There are two disparity maps for each image couple as the value of the disparity is linked to a pixel position in the image, Figure \ref{fig:stereo}.\\
+%             There are many techniques of depth estimation in the literature. This is still nowadays a burning topic with numerous industrial applications. Lately the Deep Neural Network show performances way above the previous used algorithms.
+        
+%         \newpage    
+%         \subsection{Disparity map}
+%             A quick overview of the different existing techniques to compute the disparity between a stereo pair of images present me with several possibilities. To try them out I used a couple of classical artificial stereo images known as 'Teddy' and 'Cones'. I also kept the same image as before from the Lynred's database as a real image for validation purpose.\\
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\halfimagesize]{images/parallax_correction/left_teddy.png}
+%                 \includegraphics[width=\halfimagesize]{images/parallax_correction/left_cones.png}
+%                 \includegraphics[width=\halfimagesize]{images/first_approach/vis_ex.png}
+%                 \caption{Left Teddy and Cones artificial images and Lynred's database example}
+%                 \label{fig:t&d}
+%             \end{figure}
+            
+%             \subsubsection{Semi-global matching}
+%                 The first and most accessible method is the classical \acrfull{sgm}, which is a compilation of matching cost of a sliding window from an image over the other. This requires of course the images to be aligned in prior to apply the algorithm as the sliding window, for efficiency reason, compute matching cost only along the horizontal axis. There are two versions of this algorithm implemented in OpenCv library: Classical SGM and SGBM (for semi-global block matching). The second one is a modified version on the classical SGM algorithm by H. Hirschmuller \cite{SGBM}.
+                
+%                 \begin{figure}[h]
+%                 \centering
+%                     \includegraphics[width=\smallimagesize]{images/parallax_correction/disparity_sgm_teddy.png}
+%                     \includegraphics[width=\smallimagesize]{images/parallax_correction/disparity_sgbm_teddy.png}
+%                 \caption{Teddy SGM \& SGBM disparity}
+%                 \label{fig:SGM}
+%                 \end{figure}
+                
+%                 The result of the SGBM is always better the classical SGM, but the computation time is about ten times higher(~0.2 sec). If the disparity map seems good enough here, let's remember that's a toy example made from artificial images. So the alignment is perfect and the scene well exposed.
+                
+%             \subsubsection{Deep Neural Network : ACVNet}
+%                 There are plenty of deepNeural network design for this task. It's even easy to find some with pre-trained weights, which is easier to test and assess their performances. I chose a recent network design, submitted to Kitti Stereo Benchmark. It's one of the first Network with code and weights available in the leaderboard and it's inference time should be one of the lowest aswell, which is perfect for our application. \cite{ACVNet}.
+%                 \begin{figure}[h]
+%                 \centering
+%                     \includegraphics[width=\smallimagesize]{images/parallax_correction/teddy.png}
+%                     \includegraphics[width=\smallimagesize]{images/parallax_correction/cones.png}
+%                 \caption{Teddy \& Cones ACVNet disparity}
+%                 \label{fig:ACV}
+%                 \end{figure}
+                
+%                 Using this network the result is way better, with sharper edges and homogeneous areas. This will be our choice for the best pipeline possible. However the inference time is about 0.3 second which is not fit a real-time application. For the moment the goal is to produce the best looking result possible without the real-time constraint, thus this will be our choice of solution for the next part.
+                
+%             \subsubsection{Monocular depth estimation : monodepth2}
+%                 The Deep Neural Network try to mimic the human brain comprehension of the world for a particular task. As our understanding of the Deep Neural Network grows, some people try to work on the depth estimation problem but using a single input image. As I said earlier, our brain is able to have a good estimation of the depth using one eye because it is use to see the same object and remember their shape, texture, color, etc. Using those contextual pieces of information and some other like the illumination of the scene for example we are able to have a spatial representation of our surroundings. The Deep Neural Network I used \cite{monodepth} here is train to estimate the depth using a single input image. As the training set was outdoor images of urban scene and taken from a car, the Network is efficient mostly for this kind of input in the daylight.
+%                 \begin{figure}[h]
+%                 \centering
+%                     \includegraphics[width=\smallimagesize]{images/first_approach/vis_ex.png}
+%                     \includegraphics[width=\smallimagesize]{images/parallax_correction/monocular.png}
+%                 \caption{Monocular disparity estimation by monodepth2}
+%                 \label{fig:monocular}
+%                 \end{figure}
+%                 As we could expect, the result is less sharp and accurate but we obtain nonetheless a rough estimation of the disparity. The inference time is also much lower for this Network than ACVNet, that's also why this solution stays interesting.
+        
+%         \subsection{Images alignment}
+%             Before to apply the Neural Network and draw the disparity maps we will need to align as accurately as possible our images. The convention for stereo matching in application such as driving is to aim all the cameras to the infinite. The closer an object, the more disparity we get in the image. Here our Dataset has been recorded with a focus point or 'towed-in' at about 5m. So we need to rectify that in order to get good result with the Neural Network.\\
+%             \subsubsection{Automatic registration : SIFT}
+%                 To align automatically a bunch of images could seem like a trivial task, but when the exact position and orientation of each camera is not known it's become a bit more complex. The images needs to be rotated and translated over the 3 axis in order to have a perfect superimposition of the furthest objects and a horizontal alignment over the whole image. Of course the transformation is never perfect as each lens has its distortion and each optical systems its field of view. The easiest way but letting close to zeros control over the alignment distance within the image is to use automatic keypoints matching technique, as SIFT (Figure \ref{fig:sift}).
+                
+%                 \begin{figure}[h]
+%                     \centering
+%                     \includegraphics[width=\bigimagesize]{images/parallax_correction/SIFT.png}
+%                     \caption{SIFT Keypoints finding}
+%                     \label{fig:sift}
+%                 \end{figure}
+                
+%                 But as we want to align the images only on the furthest plan possible, we need to add a constraint to keep only points from the background. For the towed in images, the further the objects the maximum the disparity. So we could add as criterion to sort the keypoints a minimum disparity threshold to have between a matched pair of points. We optionally can add another threshold discarding points matched with a too large Z disparity, as the image should be horizontally aligned (at +- 5 pixels...). With these constraints the keypoints finding becomes Figure \ref{fig:siftplus}. 
+%                 Now we can use those points to estimate the homography matrix to align one image on the other (Figure \ref{fig:wrapped}).
+%                 \begin{figure}[h]
+%                     \centering
+%                     \includegraphics[width=\bigimagesize]{images/parallax_correction/SIFTplus.png}
+%                     \caption{SIFT Keypoints finding with minimum threshold at 105px}
+%                     \label{fig:siftplus}
+%                 \end{figure}
+                
+%                 \begin{figure}[h]
+%                     \centering
+%                     \includegraphics[width=\smallimagesize]{images/parallax_correction/wrapped.png}
+%                     \includegraphics[width=\smallimagesize]{images/parallax_correction/disparity_sift.png}
+%                     \caption{Superimposition of the left aligned and right images}
+%                     \label{fig:wrapped}
+%                 \end{figure}
+%                 If this technique is efficient to match points within well resolved clear image, the algorithm is not performing well for a hybrid RGB - IR couple or a image taken during nighttime where the visibility is much lesser. The keypoints descriptor use by the SIFT algorithm is not designed to overcome the structural difference between a infrared and a RGB image.
+%             \subsubsection{Manual method}
+%                 The method I chose to use is to set manually each parameters on well chosen example images (one for the day, one for the night and for each cameras). To evaluate the quality of the alignment I display the result of the disparity estimated with the newly aligned pair using ACVNet presented above. This method is a bit subtle to set properly but it needs to be done just once per image couple.
+%                 \begin{figure}[h]
+%                     \centering
+%                     \includegraphics[width=\imagesize]{images/parallax_correction/image_alignment2.png}
+%                     \caption{Window of manual image alignment Visible - Visible}
+%                     \label{fig:w_ali2}
+%                 \end{figure}
+%                 We need to do this calibration for the couple RGB master - RGB slave and for the couple IR Master - RGB slave. The main limitation here is that the disparity shown for the hybrid alignment is really noisy and difficult to optimize to get the right parameters, see Figure \ref{fig:w_ali}. That makes sens because that exactly why we are constrained to use the visible stereo couple to estimate the disparity.\\
+%                 \begin{figure}[h]
+%                     \centering
+%                     \includegraphics[width=\imagesize]{images/parallax_correction/image_alignment.png}
+%                     \caption{Window of image alignment Infrared - Visible}
+%                     \label{fig:w_ali}
+%                 \end{figure}
+%                 Of those 6 values of rotation, and translation we deduce the transformation matrix we have to apply to all the image of the dataset. The Figure \ref{fig:matrices} shows separately the matrices deduces from this parameters. Once the projection is done the images are cropped to show only the areas where both images carry information.
+%                 \begin{figure}[h!]
+%                     \centering
+%                     \includegraphics[width=\imagesize]{images/parallax_correction/matrices_diagram.png}
+%                     \caption{Different matrix of geometrical transformation}
+%                     \label{fig:matrices}
+%                 \end{figure}
+        
+%         \subsection{Disparity estimation using the stereo visible channels}
+%             Considering the setup shown in Chapter \ref{chap:setup}, we can use the aligned visible channels to compute a disparity map. The ACVNet Neural Network return the disparity between the left and the right image projected on the left image.\\
+            
+%             \begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/parallax_correction/schema2.png}
+%                 \caption{Disparity estimation from visible stereo pair}
+%                 \label{fig:disparity_vis}
+%             \end{figure}
+            
+%             This is perfect for our application because we want to project this computed disparity on the infrared left image located between the two visible cameras. As a result we get the disparity map of the left input image with respect to the right input image. Of course as the disparity is expressed in pixels, the scale of the disparity map is directly proportional to its value. If we need to downscale the map by a factor 2, the values will be downscaled by a factor 2 as well.
+        
+%         \subsection{Disparity projection on the infrared master input}
+        
+%             The next step of our pipeline is to project the disparity map of the master visible channel onto the master infrared channel. We will use the proportionality between Baseline and disparity to do so :\\
+            
+%             \begin{equation}
+%                 disparity = \dfrac{Baseline * focal}{Depth}
+%                 \label{eq:baseline}
+%             \end{equation}
+            
+%             The schema thereafter \ref{fig:schema3} shows a close view of the disparity value within an image. This disparity is estimated as float number by the Neural Network but as the reconstruction method use integer values of pixel translation the value are rounded.\\
+            
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/parallax_correction/schema3.png}
+%                 \caption{Zoomed view of a disparity image}
+%                 \label{fig:schema3}
+%             \end{figure}
+            
+%             For the projection of the disparity map, we consider all the cameras to be aligned. The baseline between the RGB master camera and IR master camera is about $127mm$ while the disparity has been estimated with a baseline of $127 + 214 = 341mm$. The disparity being proportional to the baseline with respect to the formula \ref{eq:baseline}, we can compute the new value of the projected disparity map as a fraction of the original disparity value.
+%             \\
+%             \begin{equation}\label{eq:fraction}
+%                 Disparity\ image = \dfrac{Disparity * 214}{341}
+%             \end{equation}
+%             \begin{equation}\label{eq:fraction2}
+%                 New\ disparity = \dfrac{Disparity * 127}{341}
+%             \end{equation}
+%             \\
+%             Now that we know the value of disparity of the master IR image we need to project those values onto their related pixel. To do so we re-build the image layer after layer starting with the lowest disparity. The algorithm used is the algorithm \ref{alg:disparity}.
+            
+%             \RestyleAlgo{ruled}
+%             \SetKwComment{Comment}{/* }{ */}
+%             \begin{algorithm}[h]
+%                 \caption{Reconstruction from disparity}\label{alg:disparity}
+%                 \KwData{$Input$ and $Disparity$}
+%                 \KwResult{$NewImage$}
+%                  \For{$i=min($Disparity$)$ to $max($Disparity$)$}{
+%                   $Mask = (Disparity\_map == i)$\;
+%                   $NewImage[Mask\ translated\ of\ i\ pixel] = Input[Mask]$\;
+%                   }
+%             \end{algorithm}
+            
+%             The Input used for this algorithm in this case is the $Disparity\ image$ computed in equation(\ref{eq:fraction}) and the $New\ disparity$ values from equation(\ref{eq:fraction2}) as Disparity.
+%             The Figure \ref{fig:algorithm} shows the output at different step of the algorithm on the disparity map.
+%             \begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=16.5cm]{images/parallax_correction/algorithm.png}
+%                 \caption{Step by step projection of the disparity map}
+%                 \label{fig:algorithm}
+%             \end{figure}
+%             \begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=\bigimagesize]{images/parallax_correction/schema4.png}
+%                 \caption{Disparity projection onto infrared image}
+%                 \label{fig:schema4}
+%             \end{figure}
+%             \\
+%             The last step to obtain the final disparity map projected on the infrared image is to crop the output disparity map by the range between the $min(Disparity)$ and $max(Disparity)$ in pixels.
+%             Once we obtain the disparity map projected and we crop it to fit pixel-wise to the infrared image, we can finally make the last step and truly correct the parallax in the infrared image.
+            
+            
+%         \subsection{Final projection: parallax correction}
+%             The last step is easy once we have the tool ready. We just have to apply the algorithm \ref{alg:disparity} with as "Input" the infrared master image and as "Disparity" the projected disparity obtain just before. The occluded pixels are filled with in-painting.
+            
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/parallax_correction/schema5.png}
+%                 \caption{Correction of the infrared parallax}
+%                 \label{fig:schema5}
+%             \end{figure}
+            
+%             Once we get the newly corrected infrared image, we can apply the fusion method that we want. The quality of the reconstruction depends heavily on the quality of the initial disparity map. For that reason, the parallax correction is a bit more noisy during the night, as the input images are more blurred and less contrasted.\\
+            
+%         \subsection{Summary on parallax correction} 
+%             To conclude this part about parallax correction, let summaries the process pipeline:
+%             \begin{itemize}
+%                 \item Image alignment (automatic via SIFT or manual via the interface, the calibration is valid as long as the cameras doesn't move)
+%                 \item Disparity estimation of the master RGB image (via ACVNet or monodepth2, or using a SGBM algorithm)
+%                 \item Projection of the disparity map from master RGB to master IR.
+%                 \item Projection of the master IR image using the new disparity map onto the slave RGB image
+%             \end{itemize}
+%             \begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=\bigimagesize]{images/parallax_correction/fus_lum_parallax1.png}
+%                 \caption{Simple luminance fusion with corrected parallax}
+%                 \label{fig:fusion_parallax}
+%             \end{figure}
+            
+%             In order to skip most of these reconstruction steps we may train a Neural Network base on the same architecture as ACVNet but with as entry the RGB and the IR image directly. As the images are really different during the night and the day, two separate trainings may be done to specialize the network for each condition.\\
+%             To apply the method presented here with only one RGB and one infrared camera, we need to rely on the monocular depth estimation of the scene either using the infrared channel - which required to re-train the neural network using infrared inputs - or the visible channel and transpose this depth estimation onto the infrared image. It's important to transform the infrared image and not the visible as the RGB channel carries more information, has 4 times more pixels and will support most of the fusion final rendering, it's for the best to let it untouched.
+            
+%         \subsection{Metric to assess the reconstruction quality}
+%             If the final purpose of this fusion is the visual rendering for the users, we have to find a way to assess the quality of the output. This estimation metric is really important because it can be use to train a future network design in order to maximise the output information quality.\\
+%             There are plenty of indexes to compare two images, but we have to know what is relevant to compare in our case. As the intensity of the infrared pixel is only linked to the body heat radiance, we can't compare intensity between the two images as we would do with regular RGB images. The only common features in between those two type of images is the edges of the objects. The idea then is to compare the contour of the object in the two images and compute the correlation between the two.
+            
+%             \subsubsection{Construction of the comparison images}
+%                 From the infrared and the visible image we extract the edges information using a simple Sobel filter convolved in the 2D with the images (Matrices of the filters \ref{eq:Sobel})
+%                 \newline
+%                 \begin{equation}\label{eq:Sobel}
+%                     G_x = \begin{bmatrix}
+%                             1 & 0 & -1\\
+%                             2 & 0 & -2\\
+%                             1 & 0 & -1
+%                             \end{bmatrix}
+%                             ,\ G_y = \begin{bmatrix}
+%                             1 & 2 & 1\\
+%                             0 & 0 & 0\\
+%                             -1 & -2 & -1
+%                             \end{bmatrix}
+%                 \end{equation}
+%                 \newline
+%                 And we can compute two images, one with the norm of the gradient, the other with the orientation of the gradient.
+%                 \newline
+%                 \begin{equation}\label{eq:Sobel2}
+%                     G = \sqrt{G_x^2 + G_y^2}
+%                 \end{equation}
+%                 \begin{equation}\label{eq:Sobel2}
+%                     \Theta = \arctan2(G_y,G_x)
+%                 \end{equation}
+%                 \newline
+%                 Finally we constraint \(\Theta\) between 0\textdegree and 90\textdegree to avoid as much as possible sign error in the gradient orientation. We put thresholds on the gradient intensity to remove the noise created by the texture of the image and to avoid loss of dynamic due to high value outliers:
+%                 \newline
+%                 \begin{equation}\label{eq:Sobel2}
+%                     \Theta = abs(abs(\Theta - 180) - 90)
+%                 \end{equation}
+%                 \begin{equation}\label{eq:Sobel3}
+%                     G[G < mean(G)] = 0
+%                 \end{equation}
+%                 \begin{equation}\label{eq:Sobel3}
+%                     G[G > 5*mean(G)] = 5 * mean(G)
+%                 \end{equation}
+%                 \newline
+%                 Using the HSV representation (or HLS colorspace as any cylindrical colorspace should work) we can create a new image where:
+%                 \begin{itemize}\label{item:comparison}
+%                     \item The Hue is the orientation of the gradient \(\Theta\) computed above
+%                     \item The Saturation is a uniform layer with all the pixel to the maximum
+%                     \item The Value (or Lightness) s the norm of the gradient G computed above, normalized between 0 and 255
+%                 \end{itemize}
+                
+%                 The following Figure (Figure \ref{fig:comparison}) shows the result with the example images.
+%                 \begin{figure}[h]
+%                     \centering
+%                     \includegraphics[width=\imagesize]{images/parallax_correction/comparison_rgb.png}
+%                     \includegraphics[width=\imagesize]{images/parallax_correction/comparison_ir.png}
+%                     \caption{Left: RGB oriented edges, Right: Infrared oriented edges}
+%                     \label{fig:comparison}
+%                 \end{figure}
+                
+%             \subsubsection{Evaluation indexes}    
+%                 The classical indexes used to compare two images can be used:
+%                 \begin{itemize}\label{chap:indexes}
+%                     \item \acrfull{mse} or \acrfull{rmse}:\\
+%                     \newline
+%                     \(RMSE(A,B) = \sqrt{\frac{1}{N_{pixels}} * \sum{(A - B)²}}\), hold between 0 and 255, the lower the better
+%                     \item \acrfull{nmi}:\\ 
+%                     \newline
+%                     \(NMI(A,B) = \frac{H(A) + H(B)}{H(A,B)}\), Where \( H(X)=-\sum{x log(x)}\) is the entropy, value between 1 and 2, the higher the better
+%                     \item  \acrfull{psnr}:\\ 
+%                     \newline
+%                     \(PSNR(A,B) = 20*\log_{10}(MaxA) - 10*\log_{10}(MSE(A, B))\), Where MaxA is the maximum value of image A (up to 255 for an 8 bit image)\\
+%                     \newline
+%                     Each of the previous indexes compare the two images pixel per pixel, but the next index is much more sensitive to the structure of the input images.
+                    
+%                     \item  \acrfull{ssim}:\\ 
+%                     The SSIM Metric is computed all over the image within a sliding window. For each pixel the centered window create two little images A and B from the pixel's surroundings in the RGB image and IR image.\\
+%                     \newline
+%                     \(SSIM(A,B) = \frac{(2\mu_A\mu_B + c_1)(2\sigma_A\sigma_B + c_2)(cov_{AB} + c_3)}{(\mu_A² + \mu_B² + c_1)(\sigma_A² + \sigma_B² + c_2)(\sigma_A\sigma_B + c_3)}\), With:
+%                     \begin{itemize}
+%                         \item \(\mu_A\) the mean of A
+%                         \item \(\mu_B\) the mean of B
+%                         \item \(\sigma_A²\) the variance of A
+%                         \item \(\sigma_B²\) the variance of B
+%                         \item \(cov_{xy}\) the covariance of A and B
+%                         \item \(c_1 = (k_1L)²\), \(c_2 = (k_2L)²\) and \(c_3 = \frac{c_2}{2}\)
+%                         \item L the maximum value that can take a pixel (255 for a 8 bits image)
+%                         \item \(k_1 = 0.01\) and \(k_2 = 0.03\) as default values
+%                     \end{itemize}
+                    
+%                     \item To evaluate the quality of the parallax correction I created a new index based on the edges correlation between the two images. Here A and B are two edges images computed using a Sobel filter or the newly created Gradient image (See chapter \ref{item:comparison}).\\
+%                     \newline
+%                     \acrfull{nec}:\\
+%                     \newline
+%                     \(NEC(A,B) = \frac{\sum_{x,y} A(x,y).B(x,y)}{\sqrt{\sum_{x,y} A(x,y)² . \sum_{x,y} B(x,y)²}}\), with values between 0 and 1, the higher the better.
+%                 \end{itemize}
+%                 \newline
+%                 We can use those indexes to assess of the quality of the correction. The most relevant ones shall be the SSIM and the NEC, the other are given for information purpose only.
+                
+%         \subsection{Reconstruction quality assessment}
+%             \label{chap:parallax_assess}
+%             In order to evaluate the quality of the parallax correction, I selected randomly 100 images on each daylight and nighttime.\\
+%             The evaluation procedure is the following:
+%             \begin{itemize}
+%                 \item Each sample is a group of 3 images of the same frame: the original infrared aligned, the parallax corrected infrared and the RGB image. Those 3 images are transformed using the method described in  chapter \ref{item:comparison}.
+%                 \item The indexes are computed twice with as input: Original infrared / RGB and modified infrared / RGB, giving respectively the indexes "ref" and "new".
+%                 \item The two results are compared computing: 
+%                 \begin{itemize}
+%                     \item The mean : \(\mu = \frac{1}{N}*\sum (new - ref)/ref\)
+%                     \item The minimum and maximum : \(\min = \min(new - ref)/ref\) or \(\min = \max(new - ref)/ref\), Depending if the index has to be higher or lower to be better.
+%                 \end{itemize}
+%             \end{itemize}
+            
+%             \begin{table}[h!]
+%                 \begin{centering}
+%                 \begin{tabular}{|c|c|c|c|c|c|}
+%                 \hline
+%                 \textbf{Day} & Mean             & Variance & Minimum & Maximum & Best   \\ \hline
+%                 \textbf{SSIM}& +0.019 | +9.13\% & 0.008    & +0.005  & +0.042  & Higher \\ \hline
+%                 \textbf{NEC} & +0.058 | +17.6\% & 0.016    & +0.016  & +0.104  & Higher \\ \hline\hline
+%                         NMI  & +0.006 | +0.60\% & 0.002    & +0.001  & +0.010  & Higher \\ \hline
+%                         PNSR & +0.411 | +3.51\% & 0.111    & +0.095  & +0.767  & Higher \\ \hline
+%                         RMSE & -3.057 | -4.61\% & 0.839    & -0.717  & -5.805  & Lower  \\ \hline
+%                 \end{tabular}
+%                 \label{tab:parallaxDay}
+%                 \caption{Indexes evolution over 100 Day images}
+%                 \end{centering}
+%             \end{table}
+
+%             \begin{table}[h!]
+%                 \begin{center}
+%                 \begin{tabular}{|c|c|c|c|c|c|}
+%                 \hline
+%                 \textbf{Night}& Mean              & Variance & Minimum & Maximum & Best   \\ \hline
+%                 \textbf{SSIM} &  +0.023 | +35.3\% & 0.009    & +0.010  & +0.063 & Higher \\ \hline
+%                 \textbf{NEC}  &  +0.027 | +12.0\% & 0.010    & +0.005  & +0.048 & Higher \\ \hline\hline
+%                         NMI   & +0.002 | +0.15\%  & 0.001    & +0.000  & +0.003   & Higher \\ \hline
+%                         PNSR  & +0.169 | +1.51\%  & 0.065    & +0.027  & +0.303   & Higher \\ \hline
+%                         RMSE  & -1.361 | -1.93\%  & 0.519    & -0.215  & -2.484   & Lower  \\ \hline
+%                 \end{tabular}
+%                 \label{tab:parallaxNight}
+%                 \caption{Indexes evolution over 100 Night images}
+%                 \end{center}
+%             \end{table}
+            
+%             The two tables presented above (Table \ref{tab:parallaxDay}, \ref{tab:parallaxNight}) shows the evolution of the different indexes between before and after mitigating the parallax effect.\\
+%             As expected the indexes SSIM and NEC are the ones improving the most as they focus on the images structure. Nonetheless the other indexes show an improvement as well as we apply the computation on a gradient based image.\\
+%             If the indexes show an improvement for every single image samples we test, we have to keep in mind that those corrections are not perfect. Some of the pixels are not well estimated in the disparity and as a result we can see some artefacts after the reconstruction (see Figure \ref{fig:artefact}). These examples are from nighttime images where the disparity is much more difficult to estimate. More example of reconstruction can be found in the Annexes.
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=16cm]{images/parallax_correction/artefact.png}
+%                 \caption{Pixel miss-reconstructed due to a wrong disparity}
+%                 \label{fig:artefact}
+%             \end{figure}
+%     \newpage             
+%     \section{Fusion Mask}
+%         In the first part we presented a fusion technique base on the luminance. we can develop this method but not using only a homogeneous weighting between the images, but to put the focus on the areas of interest. In the first part the weight mask between the two input images was a constant value of \(\alpha = 1/2\). In this section we will try to adjust those mask weights according to the perceptual relevance that the images carry for each pixel. When both source provide little to no information, the RGB image will be prioritized in the balance to keep the most natural looking fused image possible.\\
+%         Once again we will need some indexes to assess the quality of the fusion. That's a bit more tricky question than before, because the "classical" indexes presented in chapter \ref{chap:indexes} do not take into account what value is relevant to the final user, but only the similarity between two inputs. Nonetheless they may give a first criterion to know if the information from both sources has been transferred to the new one.
+        
+%         \subsection{Example image}
+%             \label{chap:example_images_night}
+%             For this part about fusion I selected an image of a night scene because most of the daylight images in my 2 minutes run are well defined and objectively do not need additional information. During nighttime there are plenty of thing that the infrared can bring to complement the RGB images: Background buildings or mountains shapes, object in a saturated area due to car's lights or even public lighting.\\
+            
+%             \begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/example_rgb.png}
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/example_ir.png}
+%                 \caption{Images example selection}
+%                 \label{fig:example_night}
+%             \end{figure}
+            
+%             There are several interesting elements in this example:
+%             \begin{itemize}
+%                 \item The saturated are due to the car arriving in front of us, the infrared can show the shape of the car where the RGB is just overwhelmed (1).
+%                 \item The shape of the buidings skyline on the right side of the road is much more detailed and go a lot further on the infrared image (2).
+%                 \item The shape of the mountain and the electrical wire just above it in the middle of the image is invisible with only the RGB image (3).
+%             \end{itemize}
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\bigimagesize]{images/mask_fusion/example.png}
+%                 \caption{Areas of interest}
+%                 \label{fig:example_night_detail}
+%             \end{figure}
+            
+%         \subsection{Saliency Mask}
+%             \label{chap:saliency}
+%             The idea here is to find in the input images the features that the human's eye will focus on. The design of the mask is split in the three following parts: Saliency of intensity, color and orientation. Those three values will be computed through a Gaussian Scale pyramid (image from \href{https://en.wikipedia.org/wiki/Pyramid_(image_processing)}{"wikipedia"}, see Figure \ref{fig:pyramid}
+            
+%             \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/gaussian_pyr.png}
+%                 \caption{Scale Pyramid construction}
+%                 \label{fig:pyramid}
+%             \end{figure}
+            
+%             For each computed maps in the next part, I tried out two models: one using 
+%             a mono-scale pyramid but several intervals with larger and larger gaussian kernels, another more classical using several octave of pyramid with only one blurring level. The method I used is described in \cite{telecom}.
+            
+%             \subsubsection{Normalization function}
+%                 Before to fusion the pyramid's different levels a normalization operation will be applied on each levels. The normalization procedure aims to decrease the outlier intensity to keep as much contrast as possible. That can be applied with one or two images in input. The steps of normalization are the following:
+%                 \RestyleAlgo{ruled}
+%                 \SetKwComment{Comment}{/* }{ */}
+%                 \begin{algorithm}[h]
+%                     \caption{Normalization procedure}\label{alg:normalization}
+%                     \KwData{$image_1$ and $image_2$(optional)}
+%                     \KwResult{$image_1\ normalized$ and $image_2\ normalized$}
+%                     {
+%                     $M = Max(image_1,\ image_2)$\;
+%                     $m = Min(image_1,\ image_2)$\;
+%                     $\mu = Mean(image_1,\ image_2)$\;
+%                     \For{$k \in {1, 2}$}
+%                     {$Mask_{weight} = 1 - \frac{|image_k - m|}{M}$\;
+%                     $Output_k = Normalize(image_k * Mask_{weight},\ 0,\ 255)$\;
+%                     }
+%                     }
+%                 \end{algorithm}
+                
+%             \subsubsection{Intensity Saliency}
+%                 The high luminosity tends to attract our sight much more than the dark area within an image. The first part of the saliency map will put the focus on the luminance variation. Two method but the same idea behind: go down the scale to separate the most prominent features from the details.\\
+%                 For this step we work with the intensity only. For the IR image we can use the grayscale directly, for the RGB we will use the Luminance layer of a LAB decomposition. Then we create 6 maps for each images:
+%                 \begin{itemize}
+%                     \item $I_{RGB}(c,s) = |I_{RGB}(c) \ominus I_{RGB}(s)|$, where $ \ominus$ is the pixel-wise difference
+%                     \item $I_{IR}(c,s) = |I_{IR}(c) \ominus I_{IR}(s)|$
+%                     \item $I_{RGB}(c,s), I_{IR}(c,s) = Normalize(I_{RGB}(c,s), I_{IR}(c,s))$ using algorithm (\ref{alg:normalization})
+%                     \item c $\in \{2, 3, 4\}, s = c + \delta, \delta \in \{3, 4\}$
+%                 \end{itemize}
+%                 For the scale pyramid c and s design the octaves of the pyramid, for the Gaussian interval pyramid, c and s design the $\sigma$ of the Gaussian kernel.
+%                 The result of the pyramid inter-scale fusion is presented Figure \ref{fig:}. Two masks are presented for the Gaussian version and the scale version : RGB and IR.
+                
+%                 \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\bigimagesize]{images/mask_fusion/saliency_mask/saliency_intensity.png}
+%                 \caption{Saliency - intensity mask}
+%                 \label{fig:intensity}
+%                 \end{figure}
+                
+%             \subsubsection{Color Saliency}
+%                 The saliency of the colors is often very informative as the color can exist on a CMOS sensor only if there is a difference of measurement between the three channel R-G-B. That means there is enough light but not too much on each channels. The saturated areas and the dark areas will produce a very balanced mix of Red-Green-Blue.\\
+%                 This part is of course, only applicable for RGB as it requires 3 layers to be differentiable. The saliency will be maximum using the color pair: green/red and blue/yellow. We will then 
+%                 For each pyramid we create 4 channels from the r-g-b decomposition of the RGB image:
+%                 \begin{itemize}
+%                     \item R = r - (g + b) /2
+%                     \item G = g - (r + b) /2
+%                     \item B = b - (r + g) /2
+%                     \item Y = (r + g)/2 - |r - g|/2 - b
+%                 \end{itemize}
+%                 Then using those new channels we can compute 6 maps:
+%                 \begin{itemize}
+%                     \item RG(c,s) = |(R(c)-G(c))$\ominus$(G(s) - R(s))|
+%                     \item BY(c,s) = |(B(c)-Y(c))$\ominus$(B(s) - Y(s))|
+%                     \item RGBY(c,s) = Maximum(RG(c,s), BY(c,s))
+%                     \item c $\in \{2, 3, 4\}, s = c + \delta, \delta \in \{3, 4\}$
+%                 \end{itemize}
+                
+%                 Once we compute the inter-scale fusion of the RGBY images, we get the color saliency mask presented on Figure \ref{fig:color_saliency} for both methods.\\
+                
+%                 \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\bigimagesize]{images/mask_fusion/saliency_mask/saliency_color.png}
+%                 \caption{Saliency - color mask}
+%                 \label{fig:color_saliency}
+%                 \end{figure}
+                
+%             \subsubsection{Orientation Saliency}  
+%                 Once we remove the color and the variation of intensity, the last element catching our attention is the structure of the image. Vertical and horizontal lines, long and clear edges or even patterns as a metal fence or a road sign contour. We will use a selection of 4 Gabor's filters, covering every direction at 45° in absolute value. The filtering will be applied on the luminance layer as in the first part of the algorithm.\\ 
+%                 Then we compute :
+%                 \begin{itemize}
+%                     \item $O(\Theta)$ with $\Theta \in \{0, 45, 90, 135\}$, for each octave
+%                     \item $O(c,s,\Theta) = Normalize(|O(c,\Theta)\ominus O(s,\Theta)|)$, using algorithm (\ref{alg:normalization}) 
+%                     \item c $\in \{2, 3, 4\}, s = c + \delta, \delta \in \{3, 4\}$
+%                 \end{itemize}
+                
+%                 After the inter-scale fusion of the pyramid and a last normalization with the algorithm (\ref{alg:normalization}), using both IR and RGB maps, we get Figure \ref{fig:orientation_saliency}.
+                
+%                 \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\bigimagesize]{images/mask_fusion/saliency_mask/saliency_orientation.png}
+%                 \caption{Saliency - orientation mask}
+%                 \label{fig:orientation_saliency}
+%                 \end{figure}
+                
+%             \subsubsection{Mask concatenation}
+%                 Once each of the three masks are computed for the infrared image as well as the RGB image we can at least compute the final saliency mask, using all the pieces of information.\\
+%                 First for each image the three mask are linearly combined using weights provided by the user (usually 1, 1, 1):
+%                 \begin{itemize}
+%                     \item $Wi_{RGB} = Weight_{intensityRGB}$, $Wi_{IR} = Weight_{intensityIR}$
+%                     \item $Wc = Weight_{color}$ 
+%                     \item $Wo_{RGB} = Weight_{orientationRGB}$, $Wo_{IR} = Weight_{orientationIR}$
+%                     \item $I_{RGB} = IntensityMap_{RGB}$, $I_{IR} = IntensityMap_{IR}$
+%                     \item $C = ColorMap$
+%                     \item $O_{RGB} = OrientationMap_{RGB}$, $O_{IR} = OrientationMap_{IR}$
+%                 \end{itemize}
+%                 \begin{equation}\label{eq:mask_rgb}
+%                     Mask_{RGB} = [Wi_{RGB}*I_{RGB} +  Wc*C + Wo_{RGB}*O_{RGB}]\times \frac{15}{16} + 16
+%                 \end{equation}
+%                 \newline
+%                 \begin{equation}\label{eq:mask_ir}
+%                     Mask_{IR} = [Wi_{IR}*I_{IR} + Wo_{IR}*O_{IR}]\times \frac{15}{16} + 16
+%                 \end{equation}
+%                 \newline
+%                 The results are images with value hold within 16-255 (see Figure \ref{fig:masks_saliency}).
+                
+%                 \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\bigimagesize]{images/mask_fusion/saliency_mask/masks_saliency.png}
+%                 \caption{Saliency - final masks before information concatenation}
+%                 \label{fig:masks_saliency}
+%                 \end{figure}
+                
+%                 Some tests could be ran to find the best linear combination of those masks in most of the situations..\\
+%                 In a second time we can compute the weights mask for the RGB image (which is the opposite of the mask for the IR image), following this formula:\\
+%                 \newline
+%                 \begin{equation}\label{eq:mask_saliency}
+%                     Mask\ Saliency\ RGB = \frac{Mask_{RGB}}{Mask_{RGB} + Mask_{IR}}
+%                 \end{equation}
+%                 \newline   
+                
+%                 The values of the image obtained here are between 0 and 1. To get the mask for the IR image, we just have to take the complementary image to 1. The final saliency masks for this example are shown Figure \ref{fig:saliency}.
+                
+%                 \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/saliency_mask/saliency_scale.png}
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/saliency_mask/saliency_gauss.png}
+%                 \end{figure}
+                
+%                 \begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/scale_mask.png}
+%                 \caption{Scale pyramid saliency | Gaussian interval saliency}
+%                 \label{fig:saliency}
+%                 \end{figure}
+                
+%                 The result of fusion that we get using these masks will be presented at the end of the chapter along with some metrics to evaluate it.
+                
+%         \subsection{SSIM Mask}
+%             The idea here was to create masks from the SSIM images. The SSIM index usually computed as in Tab(\ref{tab:parallaxDay}) is the mean of the SSIM values computed for each pixel using the formula presented in chapter \ref{chap:indexes}. But using \textit{OpenCv}, it's possible to get the full image in return and not only the mean value. The function called "$SSIM_{image}$" in the algorithm thereafter compute the SSIM full image between the two inputs. If only one input is given, the algorithm will compute the SSIM image between the input and an constant image equal to the max pixel value of the input.
+%             \subsubsection{SSIM image Algorithm}
+%                 The algorithm I used to create a mask from the SSIM images of the IR and RGB images is the following:
+%                 \RestyleAlgo{ruled}
+%                     \SetKwComment{Comment}{/* }{ */}
+%                     \begin{algorithm}[h]
+%                         \caption{SSIM image using both input channel}\label{alg:SSIM_image}
+%                         \KwData{$image_{RGB}$ and $image_{IR}$ and $Weight_{RBG}$ and $WindowSize$}
+%                         \KwResult{$mask_{SSIM}$, between 0 and 1}
+%                         $WindowSize \gets 2\times WindowSize + 1$\;
+%                         $maskDiff \gets SSIM_{image}(image_{RGB}, image_{IR}, WindowSize)$\;
+%                         $maskRGB \gets SSIM_{image}(image_{RGB}, WindowSize)$\;
+%                         $maskIR \gets SSIM_{image}(image_{IR}, WindowSize)$\;
+%                         $maskDiff \gets$ Normalization between 0 and 1, mean shift to $0.5$\;
+%                         $maskRGB \gets$ Normalization between 0 and 1, mean shift to $\frac{Weight_{RBG}}{Weight_{RBG}+1}$\;
+%                         $maskIR \gets$ Normalization between 0 and 1, mean shift to $\frac{1}{Weight_{RBG}+1}$\;
+%                         $mask_{SSIM} \gets (maskRGB - maskIR)\times maskDiff$\;
+%                         $mask_{SSIM} \gets$ Normalization between 0 and 1, mean shift to $\frac{Weight_{RBG}}{Weight_{RBG}+1}$\;
+%                         \textbf{return} $mask_{SSIM}$\;
+%                     \end{algorithm}    
+%                 \newline
+%                 Now that we have a method to compute a SSIM image, we can apply the algorithm to a scale pyramid.
+                
+%             \subsubsection{SSIM scale pyramid}
+%                 \RestyleAlgo{ruled}
+%                     \SetKwComment{Comment}{->}{*/}
+%                     \begin{algorithm}[h!]
+%                         \caption{SSIM pyramid}\label{alg:SSIM_pyramid}
+%                         \KwData{$image_{RGB}$ and $image_{IR}$ and $Weight_{RBG}$ and $WindowSizeMax$}
+%                         \KwResult{$mask_{SSIM}$, between 0 and 1}
+%                         $pyrRGB \gets ScalePyramid(image_{RGB}, Octave = [0, 1, 2])$\;
+%                         $pyrIR \gets ScalePyramid(image_{IR}, Octave = [0, 1, 2])$\;
+%                         \For{$c \in [0, 1, 2, 3]$}{
+%                             \For{$i \in range(WindowSizeMax)$}{
+%                                 $WinSize \gets i + 1$\;
+%                                 $pyrSSIM[c][i] \gets SSIM_{image}(pyrRGB[c], pyrIR[c], Weight_{RBG}, WinSize)$\;}
+%                             }
+%                         $mask_{SSIM} \gets$ inter-scale fusion of $pyrSSIM$\;
+%                         $mask_{SSIM} \gets$ Gaussian filtering\;
+%                         \textbf{return} $mask_{SSIM}$\;
+%                     \end{algorithm} 
+                    
+%                 We can compute a scale pyramid as chapter \ref{chap:saliency}. We design a pyramid with 3 octaves and as intervals we increase the window size of the $SSIM_{image}$ algorithm within an octave. The $Weight_{RBG}$ variable set the importance of the RGB input in regard to the IR input.
+%                 The obtain mask trying out this algorithm with our example gives us the map presented Figure \ref{fig:mask_SSIM_scale} on the left. The map shown on the right is the simple application of the algorithm $SSIM_{image}$ without the scale pyramid construction.
+%                 \begin{figure}[h]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/ssim_mask/SSIM_scale_mask.png}
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/ssim_mask/SSIM_mask.png}
+%                 \end{figure}
+
+%     			\begin{figure}[h!]
+%                 \centering
+%                 \includegraphics[width=\imagesize]{images/mask_fusion/scale_mask.png}
+%                 \caption{SSIM masks with pyramid | SSIM mask without pyramid}
+%                 \label{fig:mask_SSIM_scale}
+%                 \end{figure}
+                
+%         \subsection{Mask application to fusion}
+%         \begin{figure}[h!]
+%             \centering
+%             \includegraphics[width=14cm]{images/mask_fusion/scaled_fusion.png}
+%             \caption{Image color and Infrared fusion using a Laplacian pyramid}
+%             \label{fig:laplacian_fusion}
+%             \end{figure} 
+            
+%             Once we get a mask, the fusion process can be a simple luminance fusion as presented in chapter \ref{chap:definition}. Another solution giving usually a smoother result is the use of a Laplacian pyramid fusion. The process is explained on Figure \ref{fig:laplacian_fusion}.
+%             The rendering of such a process is smoother and tends to have a more "natural" look than just a pondered summation at one scale. However the result of the fusion if often quite similar whatever the method used. 
+
+%     \section{Fusion quality assessment}
+%         The last section of my work will be dedicated to the assessment of the result following the same metrics as before.\\
+%         I am not yet satisfied with those metrics though, as they are not really describing  the improvement or degradation of an image visual perception from a human point of view. There are only a mere representation of the mathematical proximity of some features: edges, intensity of pixels or similarity of small regions. One future axis of development of my work will be on improving those metrics. Maybe allying some mathematical values and some cognitive evaluation metrics that can be used in the social surveys for example or proper neuro-cognitive psychology experiments.\\
+%         The assessment is done on the same 200 images than the parallax correction assessment presented in chapter \ref{chap:parallax_assess}. For each image the following mask are computed for several value of $Weight_{RBG}$:
+%         \begin{itemize}
+%             \item $Mask_\alpha = \alpha \times ones(image\ shape)$ : mask with a constant value $\alpha$.
+%             \item $Mask_{SSIM}$ : mask computed directly with the algorithm \ref{alg:SSIM_image}.
+%             \item $Mask_{SSIM\ Scale}$ : mask computed with the algorithm \ref{alg:SSIM_pyramid}.
+%             \item $Mask_{Saliency\ Scale}$ : mask computed with the scale pyramid presented Figure \ref{fig:saliency}.
+%             \item $Mask_{Saliency\ Gaussian}$ : mask computed with the Gaussian intervals pyramid presented Figure \ref{fig:saliency}.
+%         \end{itemize}
+%         A higher value of $Weight_{RBG}$ means more focus will be put on keeping the feature from the RGB source than the infrared. The fusion layer is always the luminance layer in grayscale for the RGB. The two other layers defining the color in LAB representation will remain untouched for the fusion. The assessment will be done only on the luminance layer for the RGB image as it's the only layer modified during this fusion operation. Future improvements could extend the color information on the newly fused areas.\\
+%         For each metrics presented in the chapter \ref{chap:indexes} the indexes will be computed as follow:
+%         \begin{itemize}
+%             \item $index_{ref} = index(RGB, IR)$
+%             \item $index_{RGB} = index(RGB, image_{fusion})$
+%             \item $index_{IR} = index(IR, image_{fusion})$
+%             \item $index_{FUS} = index(RGB \oplus IR, image_{fusion} \oplus image_{fusion})$, Where $\oplus$ is a horizontal concatenation operator.
+%         \end{itemize}
+        
+        
+%         \subsection{Laplacian fusion, index and visual}
+%         For the first analyze of the result we gonna see mathematically the effect of the scaled fusion using the Laplacian Pyramid on the indexes evolution. To do so, each index will be compute over the 200 images (night and day together) for each possible mask with AND without the Laplacian fusion algorithm. The aim here is to determine visually and mathematically if the Laplacian fusion is really interesting for our application case. In the table thereafter are contained the results of fusion with the different indexes computed over the 200 images.\\
+%         For each index and each fusion method presented only the $index_{FUS}$ because the variable we are interested in here is only the Laplacian fusion process.
+%         \newline
+%         \begin{table}[h]
+%         \begin{center}
+%         \begin{tabular}{|l|l|l|l|l|l|}
+%         \hline
+%         \textbf{Fusion Method/Metrics}                          & SSIM                          & NEC                           & NMI                           & PSNR                         & RMSE                         \\ \hline
+%         \rowcolor[HTML]{FF0000} 
+%         \cellcolor[HTML]{CCCCCC}\textbf{Alpha + L}              & 0.768                         & 0.607                         & 1.105                         & 16.5                         & 38.4                         \\ \hline
+%         \textbf{Alpha}                                          & \cellcolor[HTML]{00A933}0.775 & \cellcolor[HTML]{00A933}0.609 & \cellcolor[HTML]{00A933}1.106 & \cellcolor[HTML]{00A933}16.9 & \cellcolor[HTML]{00A933}36.9 \\ \hline
+%         \rowcolor[HTML]{FF0000} 
+%         \cellcolor[HTML]{CCCCCC}\textbf{SSIM + L}               & 0.758                         & \cellcolor[HTML]{00A933}0.610 & \cellcolor[HTML]{FF860D}1.094 & 16.0                         & 41.0                         \\ \hline
+%         \textbf{SSIM}                                           & \cellcolor[HTML]{00A933}0.763 & \cellcolor[HTML]{FF0000}0.609 & \cellcolor[HTML]{FF860D}1.094 & \cellcolor[HTML]{00A933}16.4 & \cellcolor[HTML]{00A933}39.0 \\ \hline
+%         \rowcolor[HTML]{FF0000} 
+%         \cellcolor[HTML]{CCCCCC}\textbf{SSIM\_Scale + L}        & 0.762                         & 0.613                         & 1.098                         & 16.0                         & 41.1                         \\ \hline
+%         \textbf{SSIM\_Scale}                                    & \cellcolor[HTML]{00A933}0.770 & \cellcolor[HTML]{00A933}0.615 & \cellcolor[HTML]{00A933}1.099 & \cellcolor[HTML]{00A933}16.4 & \cellcolor[HTML]{00A933}38.9 \\ \hline
+%         \rowcolor[HTML]{FF0000} 
+%         \cellcolor[HTML]{CCCCCC}\textbf{Saliency\_Scale + L}    & 0.761                         & \cellcolor[HTML]{FF860D}0.610 & \cellcolor[HTML]{FF860D}1.089 & 16.2                         & 39.6                         \\ \hline
+%         \textbf{Saliency\_Scale}                                & \cellcolor[HTML]{00A933}0.768 & \cellcolor[HTML]{FF860D}0.610 & \cellcolor[HTML]{FF860D}1.089 & \cellcolor[HTML]{00A933}16.6 & \cellcolor[HTML]{00A933}37.9 \\ \hline
+%         \rowcolor[HTML]{FF0000} 
+%         \cellcolor[HTML]{CCCCCC}\textbf{Saliency\_Gaussian + L} & 0.759                         & \cellcolor[HTML]{00A933}0.606 & \cellcolor[HTML]{FF860D}1.089 & 16.3                         & 39.2                         \\ \hline
+%         \textbf{Saliency\_Gaussian}                             & \cellcolor[HTML]{00A933}0.765 & \cellcolor[HTML]{FF0000}0.604 & \cellcolor[HTML]{FF860D}1.089 & \cellcolor[HTML]{00A933}16.7 & \cellcolor[HTML]{00A933}37.7 \\ \hline
+%         \textbf{Ref Value RGB/IR}                               & 0.438                         & 0.323                         & 1.054                         & 10.9                         & 73.7                         \\ \hline
+%         \end{tabular}
+%         \caption{Comparison of indexes w/wo Laplacian fusion}
+%         \end{center}
+%         \end{table}
+        
+%         As we can see with those results, the Laplacian fusion is in most of cases not an improvement in a purely mathematical approach. Indeed for the SSIM, PSNR and RMSE/MSE indexes, the straight fusion is in average over the whole 200 images better the the Laplacian fusion. Of course in some cases we can have the opposite result but the trends favor the weighted fusion without Laplacian pyramid. For the NMI the result is the same, but as the value has a logarithmic evolution, the difference is negligible in most of cases. The NEC is the only index going either way and not only in favor of a direct weighted fusion.\\
+%         As the Laplacian fusion takes more computing time, we can evaluate visually if it's worth to invest in this computing performance with 2 examples. We will compare the difference of fusion using or not the Laplacian pyramid for the basic Alpha mask with $\alpha = 1/2$.
+%         \newline
+%         \begin{figure}[h]
+%         \centering
+%             \includegraphics[width=\imagesize]{images/fusion_eval/Lap_on_comp.png}
+%             \includegraphics[width=\imagesize]{images/fusion_eval/Lap_off_comp.png}
+%         \caption{Left : with Laplacian Pyramid, Right : without Laplacian Pyramid}
+%         \label{fig:laplacian_fusion_assess}
+%         \end{figure} 
+        
+%         There is a slight difference on intensity between the two images, but it's nigh not perceptible. The following image shows the absolute grayscale difference between those two images.
+%         \newline
+%         \begin{figure}[h]
+%         \centering
+%             \includegraphics[width=\imagesize]{images/fusion_eval/Lap_diff_comp.png}
+%         \caption{Absolute difference with/without Laplacian fusion}
+%         \label{fig:laplacian_fusion_diff}
+%         \end{figure} 
+        
+%         There is indeed a slight difference between those two images, but it seems for now not to be significant enough, at least for this mask of fusion.
+%         \\
+%         For the next part we will continue with the simple fusion.
+        
+%     \subsection{Influence of the $Weight_{RBG}$ parameter}
+%         The question here is to see if every mask strategy gives the same balance of RGB/IR information in the fusion when we increase/decrease the $Weight_{RBG}$ parameter. The best mask here is the one able to keep the relevant information of both images even with a high unbalanced parameter. The focus will be the 3 points of interest highlighted in the chapter \ref{chap:example_images_night}. At first, let's have a look to two selected indexes: SSIM and RMSE. The other indexes are correlated with the MSE, so the information is a bit redundant and to keep a bit of readability, the lesser the better.
+%         \\
+%         \begin{figure}[h]
+%         \centering
+%             \includegraphics[width=14cm]{images/fusion_eval/rmse_graph.png}
+%         \caption{$RMSE_{image} = f(Weight_{RGB}, Fusion\ method), Weight_{RGB}\in [0.1, 20]$}
+%         \label{fig:RMSE index}
+%         \end{figure} 
+        
+%         \begin{figure}[h]
+%         \centering
+%             \includegraphics[width=14cm]{images/fusion_eval/ssim_graph.png}
+%         \caption{$SSIM_{image} = f(Weight_{RGB}, Fusion\ method), Weight_{RGB}\in [0.1, 20]$}
+%         \label{fig:SSIM index}
+%         \end{figure} 
+        
+%         As we can observe with the graphs Figure \ref{fig:RMSE index}, whatever the mask of fusion used and the value of the parameter $Weight_{RBG}$ the RMSE index of the fusion images is in average always closer from both the IR image and the RGB image. It's without surprise that the index is minimum (so the fusion is mathematically the best) when the $Weight_{RBG}$ parameter is equal to 1. We can do of course the same observation with the SSIM index which is maximum for $Weight_{RBG} =1$. \\
+%         The reason why the optimal point is at the 50/50 mix is that the indexes measure a kind of L2 norm between the two images pixel-wise. If we have:\\
+%         \begin{equation}
+%             f(x) = (x - a)^2 + (x - b)^2, x \in [a, b]
+%         \end{equation}
+%         \\The optimal solution of such an equation is the middle point:\\
+%         \begin{eqnarray}
+%             \frac{df}{dx}(x) & = & 2(x - a) + 2(x - b), x \in [a, b]\\
+%             \frac{df}{dx}(x) & = & 0 \\
+%             \Leftrightarrow 4x & = & 2(a + b)  \\
+%             \Leftrightarrow x & = & \frac{a + b}{2}
+%         \end{eqnarray}
+%         \\
+%         That's why it's not really interesting to analyze mathematically -Using this kind of indexes at least- the result of our fusion. As the result has to be the best possible for the user comprehension, an visual analyze makes more sense. \\
+%         Hereafter are presented the images and details for $Weight_{RBG} \in [0.25, 1, 5]$ for each mask method. We will compare the full result and a zoomed view of the detail presented in chapter \ref{chap:example_images_night}.
+        
+%         \begin{figure}[h!]
+%         \centering
+%             \includegraphics[width=15cm]{images/fusion_eval/full.png}
+%         \caption{Full result for $Weight_{RBG} \in [0.25, 1, 5]$}
+%         \label{fig:full}
+%         \end{figure} 
+        
+%         As a first global analyze of those results Figure \ref{fig:full}, a higher $Weight_{RBG}$ gives of course a way more natural rendering for each mask because we getting closer of the original RGB image. the counterpart is that for all the method the IR information is really weak and nearly not visible for most of them. It will be easier to compare those using closer view of the details.
+        
+%         \begin{figure}[h!]
+%         \centering
+%             \includegraphics[width=15cm]{images/fusion_eval/detail1.png}
+%         \caption{Detail view of the building background}
+%         \label{fig:detail1}
+%         \end{figure} 
+        
+%         If we have a look to Figure \ref{fig:detail1}, the difference is thin but if we look at the light bulb on the left side we can see that more details are kept using the SSIM masks than with the other method. The saliency  methods tend to highlight the border of the infrared object a bit more than the other.\\
+%         On Figure \ref{fig:detail2} we can see that at least 3 of the methods are performing better than the simple Alpha mask to render the car coming in front on the left. With a high $Weight_{RBG}$, when the image looks the more natural, the details from the IR image are nearly impossible to see with the homogeneous weighting. But the incoming car in the saturated area or the license plate of the car in the middle are still visible even with $Weight_{RBG}=5$ with the mask SSIM method.
+%          \begin{figure}[h!]
+%         \centering
+%             \includegraphics[width=\imagesize]{images/fusion_eval/detail21.png}
+%             \includegraphics[width=\imagesize]{images/fusion_eval/detail22.png}
+%         \caption{Detail view of a highly saturated area}
+%         \label{fig:detail2}
+%         \end{figure} 
+            
+        
+%     \subsection{Conclusion on fusion mask}
+%         Create a complex fusion mask paying attention to the details of each image is a demanding task for computing resources. Moreover the result of such mask is not as good as we could expect considering the level of complexity in compare with a simple weighted fusion. It stays interesting for areas of interest as shown above. If we consider the full picture, the SSIM fusion mask tends to highlight more the infrared details we don't have in the RGB image but keeping the same natural look than the Alpha mask fusion.
+%         \\
+%         \newline
+%         Using computed mask for a simple luminance approach was an efficient to answer the problematic, but there are still plenty of ways to explore: expending the color on the newly fused area to remove this spectral effect. We could highlight on different color the moving objects towards and away from the car. This involve time series and motion field images. I'll try to develop those subjects during a future thesis by the way of the Neural Network.\\
+
+%     \newpage
+%     \section{Conclusion}
+%         To conclude, I start with a unaligned dataset, rich of 4 channels. I exploited this advantage to compute the disparity maps frame per frame and correct the parallax effect for each of them. We had finally a dataset simple to use to try out some fusion approaches. The results of the fusion obtained are quite satisfying for the SSIM mask method. I keep in mind though that the nowadays and near future trends for image processing is the extensive use of Neural Network. For the future development of this project during the thesis I will have at least those points to answer:
+%         \begin{itemize}
+%         \item Design a network able to correct directly the parallax effect using only two sources RGB and IR, and not a RGB stereo pair.
+%         \item Work on color propagation in addition to the luminance fusion
+%         \item Set a pack of rules to highlight some objects following several parameters: semantic designation, distance, relative speed, etc.
+%         \item Create an index or several indexes to associate mathematical analysis and or proper neuro-cognitive psychology experiments. Maybe find a transverse working relationship with labs dedicated to cognitive sciences.
+%         \end{itemize}
+ 
+%         With such a subjective subject as "getting the best looking fusion possible" it's important to define the goals of this fusion image. If it's to get as much information as possible in a natural looking image, the kind of fusion I proposed here is quite relevant. But if the application aims is to assist a driver for example by adding some important information to drive safely, we have to be sure to not flood the user with to much input information but to give only the most essential one. That's where the highlighting of such potential danger or obstacles for example could be efficient, especially if it doesn't look natural. A lot of different perspectives of evolution are possible...
+            
+%     \newpage        
+\begin{thebibliography}{1}
+\bibliographystyle{plain}
+\bibliography{ref}
+\end{thebibliography}            
+\end{document}

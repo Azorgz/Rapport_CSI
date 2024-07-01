@@ -1,0 +1,52 @@
+\begin{thebibliography}{1}
+
+\bibitem{Neovision}
+Amine Chadli, Etienne Balit, Pierre~Arquier for Neovision, Guillaume Delubac,
+  Emmanuel Bercierand, and Xavier~Brenière for Lynred.
+\newblock
+  \href{https://neovision.fr/wp-content/uploads/2022/01/sia_vision_paper2020_final-2_compressed.pdf}{Gated
+  Multimodal Fusion for Visible-Thermal Pedestrian Detection}, 2020.
+
+\bibitem{monodepth}
+Clément Godard, Oisin~Mac Aodha, Michael Firman, and Gabriel Brostow.
+\newblock \href{https://arxiv.org/abs/1806.01260}{"Digging Into Self-Supervised
+  Monocular Depth Estimation"}, 2019.
+
+\bibitem{SGBM}
+Heiko Hirschmuller.
+\newblock \href{https://ieeexplore.ieee.org/document/4359315}{Stereo Processing
+  by Semiglobal Matching and Mutual Information}, 2008.
+
+\bibitem{IDS}
+IDS3D.
+\newblock
+  \href{https://fr.ids-imaging.com/whitepaper-details/whitepaper-depth-information-3d-images.html}{"Données
+  3D grâce à la stéréovision"}.
+
+\bibitem{telecom}
+Computation L.~Itti & C.~Koch and Pasadena CA USA E. Niebur Krieger Mind Brain
+  Institute Johns Hopkins University Baltimore MD~USA Neural Systems~Program,
+  California Institute of~Technology.
+\newblock \href{https://ieeexplore.ieee.org/document/730558/authors#authors}{"A
+  model of saliency-based visual attention for rapid scene analysis"}, November
+  1998.
+
+\bibitem{FRSO}
+French Road~Safety Observatory.
+\newblock
+  \href{https://www.onisr.securite-routiere.gouv.fr/sites/default/files/2022-02/20220201%20ONISR%20Road%20safety%202021%20ENG%20vMS.pdf}{Bilan
+  de l'année 2021}, 2021.
+
+\bibitem{ACVNet}
+GangWei Xu (Huazhong~University of~Science and Technology).
+\newblock
+  \href{http://www.cvlibs.net/datasets/kitti/eval_scene_flow_detail.php?benchmark=stereo&result=be440a5d507459a31ea6b3afc2018b9c0f352538"}{Attention
+  Concatenation Volume for Accurate and Efficient Stereo Matching [ACVNet]},
+  2021.
+
+\bibitem{rgpd}
+European Parliament and Council of~the European~Union.
+\newblock \href{https://eur-lex.europa.eu/eli/reg/2016/679/oj}{"General Data
+  Protection Regulation"}, 2016.
+
+\end{thebibliography}
